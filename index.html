@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Đăng ký học lập trình</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <!-- Header -->
+    <header>
+      <div class="logo">DEV<span>THONG</span></div>
+      <nav>
+        <ul>
+          <li><a href="#home">Trang chủ</a></li>
+          <li><a href="#about">Giới thiệu</a></li>
+          <li><a href="#register">Đăng ký</a></li>
+          <li><a href="#contact">Liên hệ</a></li>
+        </ul>
+      </nav>
+    </header>
+
+    <!-- Hero -->
+    <section id="home" class="hero">
+      <div class="hero-content">
+        <h1>Học Lập Trình Từ Con Số 0</h1>
+        <p>Tham gia ngay khóa học để trở thành lập trình viên chuyên nghiệp</p>
+        <a href="#register" class="btn">Đăng ký ngay</a>
+      </div>
+    </section>
+
+    <!-- About -->
+    <section id="about" class="about">
+      <h2>Vì sao chọn chúng tôi?</h2>
+      <div class="cards">
+        <div class="card">
+          <h3>Giảng viên kinh nghiệm</h3>
+          <p>Đội ngũ giảng viên với nhiều năm kinh nghiệm trong ngành IT.</p>
+        </div>
+        <div class="card">
+          <h3>Thực hành nhiều</h3>
+          <p>Bạn sẽ được thực hành code liên tục với các dự án thực tế.</p>
+        </div>
+        <div class="card">
+          <h3>Cam kết đầu ra</h3>
+          <p>Học xong có thể tự tin xin việc hoặc làm freelancer.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Register -->
+    <section id="register" class="register">
+      <h2>Form Đăng Ký Học Lập Trình</h2>
+      <form id="registerForm">
+        <div class="form-group">
+          <label for="name">Họ và tên</label>
+          <input type="text" id="name" name="name" placeholder="Nhập họ tên" />
+        </div>
+        <div class="form-group">
+          <label for="email">Email</label>
+          <input
+            type="email"
+            id="email"
+            name="email"
+            placeholder="Nhập email"
+          />
+        </div>
+        <div class="form-group">
+          <label for="phone">Số điện thoại</label>
+          <input
+            type="tel"
+            id="phone"
+            name="phone"
+            placeholder="Nhập số điện thoại"
+          />
+        </div>
+        <div class="form-group">
+          <label for="course">Chọn khóa học</label>
+          <select id="course" name="course">
+            <option value="">-- Chọn khóa học --</option>
+            <option value="html">HTML & CSS cơ bản</option>
+            <option value="js">JavaScript nâng cao</option>
+            <option value="python">Python cho người mới</option>
+            <option value="fullstack">Fullstack Web Developer</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Hình thức học</label>
+          <label
+            ><input type="radio" name="mode" value="online" /> Online</label
+          >
+          <label
+            ><input type="radio" name="mode" value="offline" /> Offline</label
+          >
+        </div>
+        <div class="form-group">
+          <label
+            ><input type="checkbox" id="agree" /> Tôi đồng ý với điều
+            khoản</label
+          >
+        </div>
+        <button type="submit" class="btn">Gửi đăng ký</button>
+      </form>
+      <div id="result"></div>
+    </section>
+
+    <!-- Contact -->
+    <section id="contact" class="contact">
+      <h2>Liên hệ</h2>
+      <p>Email: support@devthong.com</p>
+      <p>SĐT: 0123 456 789</p>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+      <p>© 2025 DEVTHONG Academy. All rights reserved.</p>
+    </footer>
+
+    <script src="script.js"></script>
+  </body>
+</html>

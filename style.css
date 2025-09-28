@@ -1,0 +1,158 @@
+/* Reset */
+* {
+  margin: 0;
+    padding: 0;
+      box-sizing: border-box;
+        font-family: "Arial", sans-serif;
+        }
+
+        body {
+          background: #0f172a;
+            color: #f8fafc;
+              line-height: 1.6;
+              }
+
+              /* Header */
+              header {
+                background: #1e293b;
+                  padding: 15px 30px;
+                    display: flex;
+                      justify-content: space-between;
+                        align-items: center;
+                          position: sticky;
+                            top: 0;
+                              z-index: 100;
+                              }
+
+                              header .logo {
+                                font-size: 24px;
+                                  font-weight: bold;
+                                    color: #38bdf8;
+                                    }
+                                    header .logo span {
+                                      color: #facc15;
+                                      }
+
+                                      nav ul {
+                                        list-style: none;
+                                          display: flex;
+                                          }
+                                          nav ul li {
+                                            margin: 0 15px;
+                                            }
+                                            nav ul li a {
+                                              color: #f8fafc;
+                                                text-decoration: none;
+                                                  transition: color 0.3s;
+                                                  }
+                                                  nav ul li a:hover {
+                                                    color: #38bdf8;
+                                                    }
+
+                                                    /* Hero */
+                                                    .hero {
+                                                      height: 100vh;
+                                                        background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('https://picsum.photos/1200/800?random=1') no-repeat center/cover;
+                                                          display: flex;
+                                                            align-items: center;
+                                                              justify-content: center;
+                                                                text-align: center;
+                                                                }
+                                                                .hero h1 {
+                                                                  font-size: 48px;
+                                                                    margin-bottom: 20px;
+                                                                    }
+                                                                    .hero p {
+                                                                      font-size: 20px;
+                                                                        margin-bottom: 20px;
+                                                                        }
+                                                                        .btn {
+                                                                          padding: 12px 25px;
+                                                                            background: #38bdf8;
+                                                                              color: #0f172a;
+                                                                                border: none;
+                                                                                  border-radius: 8px;
+                                                                                    font-weight: bold;
+                                                                                      cursor: pointer;
+                                                                                        transition: all 0.3s;
+                                                                                        }
+                                                                                        .btn:hover {
+                                                                                          background: #facc15;
+                                                                                            transform: scale(1.05);
+                                                                                            }
+
+                                                                                            /* About */
+                                                                                            .about {
+                                                                                              padding: 60px 30px;
+                                                                                                text-align: center;
+                                                                                                }
+                                                                                                .about h2 {
+                                                                                                  margin-bottom: 30px;
+                                                                                                  }
+                                                                                                  .cards {
+                                                                                                    display: flex;
+                                                                                                      gap: 20px;
+                                                                                                        justify-content: center;
+                                                                                                        }
+                                                                                                        .card {
+                                                                                                          background: #1e293b;
+                                                                                                            padding: 20px;
+                                                                                                              border-radius: 12px;
+                                                                                                                width: 250px;
+                                                                                                                  transition: transform 0.3s;
+                                                                                                                  }
+                                                                                                                  .card:hover {
+                                                                                                                    transform: translateY(-10px);
+                                                                                                                    }
+
+                                                                                                                    /* Register */
+                                                                                                                    .register {
+                                                                                                                      padding: 60px 30px;
+                                                                                                                        background: #0f172a;
+                                                                                                                          text-align: center;
+                                                                                                                          }
+                                                                                                                          .register h2 {
+                                                                                                                            margin-bottom: 30px;
+                                                                                                                            }
+                                                                                                                            form {
+                                                                                                                              max-width: 500px;
+                                                                                                                                margin: auto;
+                                                                                                                                  text-align: left;
+                                                                                                                                  }
+                                                                                                                                  .form-group {
+                                                                                                                                    margin-bottom: 20px;
+                                                                                                                                    }
+                                                                                                                                    label {
+                                                                                                                                      display: block;
+                                                                                                                                        margin-bottom: 8px;
+                                                                                                                                        }
+                                                                                                                                        input, select {
+                                                                                                                                          width: 100%;
+                                                                                                                                            padding: 10px;
+                                                                                                                                              border-radius: 6px;
+                                                                                                                                                border: none;
+                                                                                                                                                  outline: none;
+                                                                                                                                                  }
+                                                                                                                                                  input[type="radio"], input[type="checkbox"] {
+                                                                                                                                                    width: auto;
+                                                                                                                                                    }
+                                                                                                                                                    #result {
+                                                                                                                                                      margin-top: 20px;
+                                                                                                                                                        font-weight: bold;
+                                                                                                                                                          color: #38bdf8;
+                                                                                                                                                          }
+
+                                                                                                                                                          /* Contact */
+                                                                                                                                                          .contact {
+                                                                                                                                                            padding: 40px;
+                                                                                                                                                              text-align: center;
+                                                                                                                                                                background: #1e293b;
+                                                                                                                                                                }
+
+                                                                                                                                                                /* Footer */
+                                                                                                                                                                footer {
+                                                                                                                                                                  background: #0f172a;
+                                                                                                                                                                    padding: 15px;
+                                                                                                                                                                      text-align: center;
+                                                                                                                                                                        border-top: 1px solid #1e293b;
+                                                                                                                                                                        }
