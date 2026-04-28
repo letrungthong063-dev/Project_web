@@ -2,11 +2,13 @@ import aiohttp
 import importlib
 import io
 import os
-from datetime import datetime
+from datetime import datetime, timezone, timedelta
 
 
 def convert_to_timestamp(date_str):
+    vn_tz = timezone(timedelta(hours=7))
     dt = datetime.strptime(date_str, "%d/%m/%Y %H:%M")
+    dt = dt.replace(tzinfo=vn_tz)
     return int(dt.timestamp())
 
 
