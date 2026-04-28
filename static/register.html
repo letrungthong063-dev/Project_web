@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đăng ký - YAHUB BXH</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-900 text-white min-h-screen flex items-center justify-center">
+    <div class="bg-gray-800 p-8 rounded-lg w-full max-w-md">
+        <h1 class="text-2xl font-bold text-center mb-6">Đăng ký</h1>
+        <div id="error" class="hidden bg-red-600 text-white p-3 rounded mb-4 text-sm"></div>
+        <div id="success" class="hidden bg-green-600 text-white p-3 rounded mb-4 text-sm"></div>
+        <form id="registerForm">
+            <div class="mb-4">
+                <label class="block text-sm mb-1">Email</label>
+                <input type="email" id="email" required class="w-full bg-gray-700 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+            <div class="mb-4">
+                <label class="block text-sm mb-1">Mật khẩu</label>
+                <input type="password" id="password" required minlength="6" class="w-full bg-gray-700 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+            <div class="mb-6">
+                <label class="block text-sm mb-1">Xác nhận mật khẩu</label>
+                <input type="password" id="confirm" required class="w-full bg-gray-700 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+            <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 py-2 rounded font-bold">Đăng ký</button>
+        </form>
+        <p class="text-center text-sm mt-4 text-gray-400">Đã có tài khoản? <a href="/login" class="text-blue-400 hover:underline">Đăng nhập</a></p>
+    </div>
+
+    <script>
+        if (localStorage.getItem("token")) window.location.href = "/dashboard";
+
+        document.getElementById("registerForm").addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const email = document.getElementById("email").value;
+            const password = document.getElementById("password").value;
+            const confirm = document.getElementById("confirm").value;
+            const errorDiv = document.getElementById("error");
+            const successDiv = document.getElementById("success");
+
+            errorDiv.classList.add("hidden");
+            successDiv.classList.add("hidden");
+
+            if (password !== confirm) {
+                errorDiv.textContent = "Mật khẩu xác nhận không khớp";
+                errorDiv.classList.remove("hidden");
+                return;
+            }
+
+            try {
+                const res = await fetch("/api/register", {
+                    method: "POST",
+                    headers: {"Content-Type": "application/json"},
+                    body: JSON.stringify({email, password})
+                });
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.detail);
+
+                successDiv.textContent = "Đăng ký thành công! Đang chuyển hướng...";
+                successDiv.classList.remove("hidden");
+                setTimeout(() => window.location.href = "/login", 1500);
+            } catch (err) {
+                errorDiv.textContent = err.message;
+                errorDiv.classList.remove("hidden");
+            }
+        });
+    </script>
+</body>
+</html>

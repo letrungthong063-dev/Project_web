@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - YAHUB</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-900 text-white min-h-screen">
+    <div id="navbar"></div>
+
+    <div class="max-w-5xl mx-auto p-6">
+        <h1 class="text-2xl font-bold mb-6">Trang Quản Trị</h1>
+
+        <!-- Tabs -->
+        <div class="flex gap-2 mb-6 flex-wrap">
+            <button onclick="showTab('stats', this)" class="tab-btn bg-blue-600 px-4 py-2 rounded">Thống kê</button>
+            <button onclick="showTab('users', this)" class="tab-btn bg-gray-700 px-4 py-2 rounded">Users</button>
+            <button onclick="showTab('logos', this)" class="tab-btn bg-gray-700 px-4 py-2 rounded">Logo</button>
+            <button onclick="showTab('history', this)" class="tab-btn bg-gray-700 px-4 py-2 rounded">Lịch sử</button>
+            <button onclick="showTab('notification', this)" class="tab-btn bg-gray-700 px-4 py-2 rounded">Thông báo</button>
+            <button onclick="showTab('backup', this)" class="tab-btn bg-gray-700 px-4 py-2 rounded">Backup</button>
+        </div>
+
+        <!-- Stats -->
+        <div id="tab-stats" class="tab-content">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="bg-gray-800 p-4 rounded-lg text-center">
+                    <p class="text-3xl font-bold text-blue-400" id="totalUsers">-</p>
+                    <p class="text-gray-400 text-sm">Tổng users</p>
+                </div>
+                <div class="bg-gray-800 p-4 rounded-lg text-center">
+                    <p class="text-3xl font-bold text-green-400" id="totalBxh">-</p>
+                    <p class="text-gray-400 text-sm">Tổng bảng đã tạo</p>
+                </div>
+                <div class="bg-gray-800 p-4 rounded-lg text-center">
+                    <p class="text-xl font-bold text-yellow-400" id="mostUsedBg">-</p>
+                    <p class="text-gray-400 text-sm">Background dùng nhiều nhất</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Users -->
+        <div id="tab-users" class="tab-content hidden">
+            <div id="usersList" class="space-y-2">Đang tải...</div>
+        </div>
+
+        <!-- Logos -->
+        <div id="tab-logos" class="tab-content hidden">
+            <div id="adminLogoList" class="space-y-2">Đang tải...</div>
+        </div>
+
+        <!-- Lịch sử -->
+        <div id="tab-history" class="tab-content hidden">
+            <div class="mb-4">
+                <input type="text" id="historySearch" placeholder="Tìm theo email user..." oninput="filterHistory()" class="w-full md:w-64 bg-gray-700 rounded px-3 py-2 focus:outline-none">
+            </div>
+            <div id="adminHistoryList" class="grid grid-cols-1 md:grid-cols-2 gap-4">Đang tải...</div>
+        </div>
+
+        <!-- Notification -->
+        <div id="tab-notification" class="tab-content hidden">
+            <div class="bg-gray-800 p-4 rounded-lg">
+                <h2 class="font-bold mb-4">Cài đặt thông báo</h2>
+                <div class="mb-3">
+                    <label class="block text-sm mb-1">Nội dung thông báo</label>
+                    <input type="text" id="notifMessage" class="w-full bg-gray-700 rounded px-3 py-2 focus:outline-none">
+                </div>
+                <div class="mb-4">
+                    <label class="block text-sm mb-1">Thời gian hiển thị (giây)</label>
+                    <input type="number" id="notifDuration" value="5" min="1" class="w-full bg-gray-700 rounded px-3 py-2 focus:outline-none">
+                </div>
+                <div class="flex gap-3">
+                    <button onclick="setNotification(true)" class="flex-1 bg-blue-600 hover:bg-blue-700 py-2 rounded font-bold">Bật thông báo</button>
+                    <button onclick="setNotification(false)" class="flex-1 bg-gray-600 hover:bg-gray-700 py-2 rounded">Tắt thông báo</button>
+                </div>
+                <div id="notifMsg" class="hidden mt-2 text-sm"></div>
+            </div>
+        </div>
+
+        <!-- Backup -->
+        <div id="tab-backup" class="tab-content hidden">
+            <div class="bg-gray-800 p-4 rounded-lg space-y-4">
+                <div>
+                    <h2 class="font-bold mb-2">Xuất dữ liệu</h2>
+                    <a href="/api/admin/backup" class="block text-center bg-green-600 hover:bg-green-700 py-2 rounded font-bold">Download Backup</a>
+                </div>
+                <div>
+                    <h2 class="font-bold mb-2">Nhập dữ liệu</h2>
+                    <input type="file" id="importFile" accept=".json" class="w-full bg-gray-700 rounded px-3 py-2 mb-2">
+                    <button onclick="importData()" class="w-full bg-blue-600 hover:bg-blue-700 py-2 rounded font-bold">Import</button>
+                    <div id="importMsg" class="hidden mt-2 text-sm"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/auth.js"></script>
+    <script>
+        requireAuth();
+        document.getElementById("navbar").innerHTML = renderNavbar("/admin");
+
+        const user = getUser();
+        if (!user || user.role !== "admin") window.location.href = "/dashboard";
+
+        let allHistory = [];
+
+        function showTab(tab, btn) {
+            document.querySelectorAll(".tab-content").forEach(el => el.classList.add("hidden"));
+            document.querySelectorAll(".tab-btn").forEach(el => {
+                el.classList.remove("bg-blue-600");
+                el.classList.add("bg-gray-700");
+            });
+            document.getElementById(`tab-${tab}`).classList.remove("hidden");
+            btn.classList.remove("bg-gray-700");
+            btn.classList.add("bg-blue-600");
+
+            if (tab === "stats") loadStats();
+            if (tab === "users") loadUsers();
+            if (tab === "logos") loadAdminLogos();
+            if (tab === "history") loadAdminHistory();
+        }
+
+        async function loadStats() {
+            const res = await fetch("/api/admin/stats", {headers: authHeaders()});
+            const data = await res.json();
+            document.getElementById("totalUsers").textContent = data.total_users;
+            document.getElementById("totalBxh").textContent = data.total_bxh;
+            document.getElementById("mostUsedBg").textContent = data.most_used_bg;
+        }
+
+        async function loadUsers() {
+            const res = await fetch("/api/admin/users", {headers: authHeaders()});
+            const data = await res.json();
+            document.getElementById("usersList").innerHTML = data.users.map(u => `
+                <div class="bg-gray-800 p-3 rounded flex justify-between items-center">
+                    <div>
+                        <p class="font-bold">${u.email}</p>
+                        <p class="text-xs text-gray-400">${u.role} | ${new Date(u.created_at).toLocaleDateString("vi-VN")}</p>
+                    </div>
+                    ${u.id !== getUser().id ? `<button onclick="deleteUser('${u.id}', '${u.email}')" class="bg-red-600 hover:bg-red-700 px-3 py-1 rounded text-sm">Xóa</button>` : '<span class="text-gray-500 text-sm">Bạn</span>'}
+                </div>
+            `).join("");
+        }
+
+        async function deleteUser(id, email) {
+            if (!confirm(`Xóa tài khoản "${email}"?`)) return;
+            const res = await fetch(`/api/admin/users/${id}`, {method: "DELETE", headers: authHeaders()});
+            if (res.ok) loadUsers();
+        }
+
+        async function loadAdminLogos() {
+            const res = await fetch("/api/admin/logos", {headers: authHeaders()});
+            const data = await res.json();
+            document.getElementById("adminLogoList").innerHTML = data.logo_sets.length
+                ? data.logo_sets.map(ls => `
+                    <div class="bg-gray-800 p-3 rounded flex justify-between items-center">
+                        <div>
+                            <p class="font-bold">${ls.key_logo}</p>
+                            <p class="text-xs text-gray-400">${ls.users?.email || "N/A"}</p>
+                        </div>
+                        <button onclick="adminDeleteLogo('${ls.id}')" class="bg-red-600 hover:bg-red-700 px-3 py-1 rounded text-sm">Xóa</button>
+                    </div>
+                `).join("")
+                : "<p class='text-gray-400'>Chưa có bộ logo nào.</p>";
+        }
+
+        async function adminDeleteLogo(id) {
+            if (!confirm("Xóa bộ logo này?")) return;
+            const res = await fetch(`/api/admin/logos/${id}`, {method: "DELETE", headers: authHeaders()});
+            if (res.ok) loadAdminLogos();
+        }
+
+        async function loadAdminHistory() {
+            const res = await fetch("/api/admin/history", {headers: authHeaders()});
+            const data = await res.json();
+            allHistory = data.history || [];
+            renderHistory(allHistory);
+        }
+
+        function renderHistory(list) {
+            const container = document.getElementById("adminHistoryList");
+            if (!list.length) {
+                container.innerHTML = "<p class='text-gray-400'>Chưa có lịch sử nào.</p>";
+                return;
+            }
+            container.innerHTML = list.map(h => `
+                <div class="bg-gray-800 rounded-lg overflow-hidden">
+                    <img src="${h.image_url}" class="w-full" alt="BXH">
+                    <div class="p-3">
+                        <p class="text-sm font-bold">${h.user_email || "N/A"}</p>
+                        <p class="text-sm text-gray-400">${h.start_time} — ${h.background}</p>
+                        <p class="text-xs text-gray-500">${new Date(h.created_at).toLocaleString("vi-VN")}</p>
+                        <a href="${h.image_url}" download class="mt-2 block text-center bg-green-600 hover:bg-green-700 py-1 rounded text-sm">Tải xuống</a>
+                    </div>
+                </div>
+            `).join("");
+        }
+
+        function filterHistory() {
+            const q = document.getElementById("historySearch").value.toLowerCase();
+            renderHistory(allHistory.filter(h => (h.user_email || "").toLowerCase().includes(q)));
+        }
+
+        async function setNotification(active) {
+            const message = document.getElementById("notifMessage").value;
+            const duration = parseInt(document.getElementById("notifDuration").value) || 5;
+            const msgDiv = document.getElementById("notifMsg");
+            const res = await fetch("/api/admin/notification", {
+                method: "POST",
+                headers: authHeaders(),
+                body: JSON.stringify({active, message, duration})
+            });
+            msgDiv.textContent = active ? "Đã bật thông báo!" : "Đã tắt thông báo!";
+            msgDiv.className = "text-green-400 text-sm mt-2";
+            msgDiv.classList.remove("hidden");
+        }
+
+        async function importData() {
+            const file = document.getElementById("importFile").files[0];
+            const msgDiv = document.getElementById("importMsg");
+            if (!file) { alert("Chọn file trước!"); return; }
+            const formData = new FormData();
+            formData.append("file", file);
+            const token = localStorage.getItem("token");
+            const res = await fetch("/api/admin/import", {
+                method: "POST",
+                headers: {"Authorization": `Bearer ${token}`},
+                body: formData
+            });
+            const data = await res.json();
+            msgDiv.textContent = data.detail || data.message;
+            msgDiv.className = res.ok ? "text-green-400 text-sm mt-2" : "text-red-400 text-sm mt-2";
+            msgDiv.classList.remove("hidden");
+        }
+
+        loadStats();
+    </script>
+</body>
+</html>

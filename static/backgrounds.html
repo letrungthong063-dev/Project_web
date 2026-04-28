@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Backgrounds - YAHUB</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-900 text-white min-h-screen">
+    <div id="navbar"></div>
+
+    <div class="max-w-4xl mx-auto p-6">
+        <h1 class="text-2xl font-bold mb-6">Danh sách Background</h1>
+        <div id="bgList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <p class="text-gray-400">Đang tải...</p>
+        </div>
+    </div>
+
+    <script src="/static/auth.js"></script>
+    <script>
+        requireAuth();
+        document.getElementById("navbar").innerHTML = renderNavbar("/backgrounds");
+        checkNotification();
+
+        async function loadBackgrounds() {
+            const res = await fetch("/api/backgrounds", {headers: authHeaders()});
+            const data = await res.json();
+            const list = document.getElementById("bgList");
+            if (!data.backgrounds.length) {
+                list.innerHTML = "<p class='text-gray-400'>Chưa có background nào.</p>";
+                return;
+            }
+            list.innerHTML = data.backgrounds.map(bg => `
+                <div class="bg-gray-800 rounded-lg overflow-hidden">
+                    <img src="/api/backgrounds/${bg}/preview" class="w-full object-cover h-40" alt="${bg}" onerror="this.parentElement.querySelector('.no-img').classList.remove('hidden'); this.classList.add('hidden')">
+                    <div class="no-img hidden bg-gray-700 h-40 flex items-center justify-center text-gray-500">Không có preview</div>
+                    <div class="p-3 flex justify-between items-center">
+                        <p class="font-bold">${bg}</p>
+                        <button onclick="navigator.clipboard.writeText('${bg}').then(()=>alert('Đã copy!'))" class="text-xs bg-gray-700 hover:bg-gray-600 px-2 py-1 rounded">Copy</button>
+                    </div>
+                </div>
+            `).join("");
+        }
+        loadBackgrounds();
+    </script>
+</body>
+</html>

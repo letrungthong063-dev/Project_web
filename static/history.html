@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lịch sử - YAHUB</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-900 text-white min-h-screen">
+    <div id="navbar"></div>
+
+    <div class="max-w-4xl mx-auto p-6">
+        <h1 class="text-2xl font-bold mb-6">Lịch sử Bảng Xếp Hạng</h1>
+        <div id="historyList" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <p class="text-gray-400">Đang tải...</p>
+        </div>
+    </div>
+
+    <script src="/static/auth.js"></script>
+    <script>
+        requireAuth();
+        document.getElementById("navbar").innerHTML = renderNavbar("/history");
+        checkNotification();
+
+        async function loadHistory() {
+            const res = await fetch("/api/history", {headers: authHeaders()});
+            const data = await res.json();
+            const container = document.getElementById("historyList");
+
+            if (!data.history.length) {
+                container.innerHTML = "<p class='text-gray-400'>Chưa có lịch sử nào.</p>";
+                return;
+            }
+
+            container.innerHTML = data.history.map(h => `
+                <div class="bg-gray-800 rounded-lg overflow-hidden">
+                    <img src="${h.image_url}" class="w-full" alt="BXH">
+                    <div class="p-3">
+                        <p class="text-sm text-gray-400">${h.start_time} — ${h.background}</p>
+                        <p class="text-xs text-gray-500">${new Date(h.created_at).toLocaleString("vi-VN")}</p>
+                        <a href="${h.image_url}" download="leaderboard.png" class="mt-2 block text-center bg-green-600 hover:bg-green-700 py-1 rounded text-sm">Tải xuống</a>
+                    </div>
+                </div>
+            `).join("");
+        }
+        loadHistory();
+    </script>
+</body>
+</html>

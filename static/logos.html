@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản lý Logo - YAHUB</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-900 text-white min-h-screen">
+    <div id="navbar"></div>
+
+    <div class="max-w-4xl mx-auto p-6">
+        <h1 class="text-2xl font-bold mb-6">Quản lý Bộ Logo</h1>
+
+        <!-- Tạo bộ logo mới -->
+        <div class="bg-gray-800 p-4 rounded-lg mb-6">
+            <h2 class="font-bold mb-3">Tạo bộ logo mới</h2>
+            <div class="flex gap-3">
+                <input type="text" id="newKeyLogo" placeholder="Tên bộ logo (vd: giai1)" class="flex-1 bg-gray-700 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <button onclick="createLogoSet()" class="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded font-bold">Tạo</button>
+            </div>
+            <div id="createError" class="hidden text-red-400 text-sm mt-2"></div>
+        </div>
+
+        <!-- Danh sách bộ logo -->
+        <div id="logoSets" class="space-y-4">
+            <p class="text-gray-400">Đang tải...</p>
+        </div>
+    </div>
+
+    <!-- Modal upload logo -->
+    <div id="uploadModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div class="bg-gray-800 p-6 rounded-lg w-full max-w-md">
+            <h2 class="font-bold text-lg mb-4">Thêm logo vào bộ</h2>
+            <div class="mb-3">
+                <label class="block text-sm mb-1">ID người chơi</label>
+                <input type="text" id="uploadTeamId" placeholder="123456789012" class="w-full bg-gray-700 rounded px-3 py-2 focus:outline-none">
+            </div>
+            <div class="mb-4">
+                <label class="block text-sm mb-1">File ảnh (tối đa 10MB)</label>
+                <input type="file" id="uploadFile" accept="image/*" class="w-full bg-gray-700 rounded px-3 py-2">
+            </div>
+            <div id="uploadError" class="hidden text-red-400 text-sm mb-3"></div>
+            <div class="flex gap-3">
+                <button onclick="uploadLogo()" class="flex-1 bg-blue-600 hover:bg-blue-700 py-2 rounded font-bold">Upload</button>
+                <button onclick="closeModal()" class="flex-1 bg-gray-600 hover:bg-gray-700 py-2 rounded">Hủy</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/auth.js"></script>
+    <script>
+        requireAuth();
+        document.getElementById("navbar").innerHTML = renderNavbar("/logos");
+        checkNotification();
+
+        let currentLogoSetId = null;
+
+        async function loadLogoSets() {
+            const res = await fetch("/api/logos", {headers: authHeaders()});
+            const data = await res.json();
+            const container = document.getElementById("logoSets");
+
+            if (!data.logo_sets.length) {
+                container.innerHTML = "<p class='text-gray-400'>Chưa có bộ logo nào.</p>";
+                return;
+            }
+
+            container.innerHTML = data.logo_sets.map(ls => `
+                <div class="bg-gray-800 p-4 rounded-lg">
+                    <div class="flex justify-between items-center">
+                        <h3 class="font-bold text-lg">${ls.key_logo}</h3>
+                        <div class="flex gap-2">
+                            <button onclick="openUploadModal('${ls.id}')" class="bg-blue-600 hover:bg-blue-700 px-3 py-1 rounded text-sm">+ Thêm logo</button>
+                            <button onclick="deleteLogoSet('${ls.id}', '${ls.key_logo}')" class="bg-red-600 hover:bg-red-700 px-3 py-1 rounded text-sm">Xóa bộ</button>
+                        </div>
+                    </div>
+                    <p class="text-gray-400 text-sm mt-1">ID: ${ls.id}</p>
+                </div>
+            `).join("");
+        }
+
+        async function createLogoSet() {
+            const key = document.getElementById("newKeyLogo").value.trim();
+            const errDiv = document.getElementById("createError");
+            errDiv.classList.add("hidden");
+
+            if (!key) {
+                errDiv.textContent = "Vui lòng nhập tên bộ logo";
+                errDiv.classList.remove("hidden");
+                return;
+            }
+
+            const res = await fetch("/api/logos", {
+                method: "POST",
+                headers: authHeaders(),
+                body: JSON.stringify({key_logo: key})
+            });
+            const data = await res.json();
+            if (!res.ok) {
+                errDiv.textContent = data.detail;
+                errDiv.classList.remove("hidden");
+                return;
+            }
+            document.getElementById("newKeyLogo").value = "";
+            loadLogoSets();
+        }
+
+        async function deleteLogoSet(id, name) {
+            if (!confirm(`Xóa bộ logo "${name}"?`)) return;
+            const res = await fetch(`/api/logos/${id}`, {method: "DELETE", headers: authHeaders()});
+            if (res.ok) loadLogoSets();
+        }
+
+        function openUploadModal(logoSetId) {
+            currentLogoSetId = logoSetId;
+            document.getElementById("uploadModal").classList.remove("hidden");
+        }
+
+        function closeModal() {
+            document.getElementById("uploadModal").classList.add("hidden");
+            document.getElementById("uploadTeamId").value = "";
+            document.getElementById("uploadFile").value = "";
+            document.getElementById("uploadError").classList.add("hidden");
+        }
+
+        async function uploadLogo() {
+            const teamId = document.getElementById("uploadTeamId").value.trim();
+            const file = document.getElementById("uploadFile").files[0];
+            const errDiv = document.getElementById("uploadError");
+            errDiv.classList.add("hidden");
+
+            if (!teamId || !file) {
+                errDiv.textContent = "Vui lòng điền đầy đủ thông tin";
+                errDiv.classList.remove("hidden");
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append("file", file);
+            formData.append("team_id", teamId);
+
+            const token = localStorage.getItem("token");
+            const res = await fetch(`/api/logos/${currentLogoSetId}/upload`, {
+                method: "POST",
+                headers: {"Authorization": `Bearer ${token}`},
+                body: formData
+            });
+            const data = await res.json();
+            if (!res.ok) {
+                errDiv.textContent = data.detail;
+                errDiv.classList.remove("hidden");
+                return;
+            }
+            closeModal();
+            alert("Upload logo thành công!");
+        }
+
+        loadLogoSets();
+    </script>
+</body>
+</html>
